@@ -5,7 +5,7 @@ import random
 WIDTH= 700
 HEIGHT= 900
 
-
+# inicializacia
 sudokupole = Actor("sudokupole", center = (WIDTH/2,600/2+50))
 youwin2 = Actor("youwin2", center = (-10000,-10000))
 chisla = [0]*9
@@ -29,9 +29,11 @@ for i in range(0,9):
             kletki[i][j][1] = Actor("false0", center = (50 + 3 + j + 32 + j*64 + j//3*3, 50 + 3 + i + 32 + i*64 + i//3*3))
         else:
             kletki[i][j][1] = Actor("mychislo" + see[i*9+j], center = (50 + 3 + j + 32 + j*64 + j//3*3, 50 + 3 + i + 32 + i*64 + i//3*3))
-            kletki[i][j][2] = 1
+            kletki[i][j][2] = 1 # ???
+    # zapolnenie polja kletkami i ciframi
 kletki[0][0][0].image = "blue"
-def stechkin(i1,j1,n):
+def stechkin(i1,j1,n): # vydelenie vseh kletok v odnoj stroke, stolbce i kvadrate i 
+                       # s sovp. cifroj s kletkoj (i1, j1)
     global kletki
     for x in range(0,9):
         for y in range(0,9):
@@ -44,24 +46,28 @@ def stechkin(i1,j1,n):
                     kletki[x][y][0].image = n
                 if i1//3*3 <= x < (i1//3 + 1)*3 and j1//3*3 <= y < (j1//3 + 1)*3 :
                     kletki[x][y][0].image = n
+
 def on_mouse_down(pos):
     global i1, j1, b
     b = 0
     if kletki[i1][j1][2] == 0:
         for i in range(0,9):
-            if chisla[i][1].collidepoint(pos):
+            if chisla[i][1].collidepoint(pos): # esli byla nazhata odna iz cifr snizu
                 stechkin(i1,j1,"white")
+                # pokraska v belyj
                 if chisla[i][1].image != "mychislo" + notsee[i1*9+j1]:
                     kletki[i1][j1][0].image = "red"
+                    # esli cifra ne sovpala s zagadannoj, to krasitsja v krasnyj
                 else:
                     kletki[i1][j1][0].image = "blue"
+                    # inache v sinij
                 kletki[i1][j1][1].image = "chislo" + str(i+1)
                 stechkin(i1,j1,"grey")
                 break
     for i in range(0,9):
         for j in range(0,9):
             if kletki[i][j][1].image[-1] == notsee[i*9 + j] != 0:
-                b += 1
+                b += 1 # uvel. kol-va ugadannyh cifr
             if kletki[i][j][0].collidepoint(pos):
                 stechkin(i1,j1,"white")
                 if kletki[i][j][0].image != "red":
@@ -71,20 +77,21 @@ def on_mouse_down(pos):
                 i1 = i
                 j1 = j
                 stechkin(i1,j1,"grey")
-    if b == 81 :
+                # vydelenie kletok cvetami
+    if b == 81: # esli vse cifry ugadany
         youwin2.x = WIDTH/2
         youwin2.y = 700/2
     
 def draw():
     screen.clear()
-    screen.fill((0,0,0))
+    screen.fill((0,0,0)) # pokraska ekrana v chornyj
     ##sudokupole.draw()
-    if youwin2.x < 0:
+    if youwin2.x < 0: # esli tekst za ekranom, to prodolzhat' igru
         for i in range(0,9):
             chisla[i][0].draw()
-            chisla[i][1].draw()
+            chisla[i][1].draw() # otrisovka cifr snizu
             for j in range(0,9):
                 kletki[i][j][0].draw()
-                kletki[i][j][1].draw()
-    youwin2.draw()
+                kletki[i][j][1].draw() # otrisovka polja
+    youwin2.draw() # otrisovka teksta
 pgzrun.go()
