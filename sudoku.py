@@ -1,7 +1,167 @@
-# -*-coding:utf-8-*-
-
+# -*- coding:utf-8 -*-
+from collections import Counter
+import random
 import pgzrun
-import gen
+def adjust_rows_from_cols(cols: list):
+    rows = []
+    for i in range(9):
+        _row = []
+        for j in range(9):
+            _row.append(0)
+        rows.append(_row)
+    for col_index in range(9):
+        for elem_index in range(9):
+            rows[elem_index][col_index] = cols[col_index][elem_index]
+    return rows
+
+def adjust_cols_from_rows(rows: list):
+    cols = []
+    for i in range(9):
+        col = []
+        for j in range(9):
+            col.append(0)
+        cols.append(col)
+
+    for row_index in range(9):
+        for elem_index in range(9):
+            cols[elem_index][row_index] = rows[row_index][elem_index]
+    return cols
+
+def print_pole(rows):
+    for az in rows:
+        for buki in az:
+            print(buki, end=' ')
+        print()
+
+def get_square_elements(x, y, strs): # int -> int -> list(list(int)) -> set(int)
+    str_coords = [i for i in range(x // 3 * 3, (x + 3) // 3 * 3)]
+    col_coords = [i for i in range(y // 3 * 3, (y + 3) // 3 * 3)]
+    res = []
+    for str_coord in str_coords:
+        for col_coord in col_coords:
+            res.append(strs[str_coord][col_coord])
+    return res
+
+def read_field(file='field.txt'):
+    with open(file, 'r', encoding='utf8') as field_file:
+        lines = field_file.read()
+        rows = []
+        for boundary in range(0,73,9):
+            row = lines[boundary:boundary+9].split('')
+            rows.append(row)
+    return rows
+
+def write_to_txt(rows, filename):
+    with open(filename, 'w', encoding='utf8') as file:
+        for field_row in rows:
+            for field_elem in field_row:
+                print(field_elem, end='', file=file)
+
+def checker(rows):
+
+    cols = adjust_cols_from_rows(rows)
+    correct = True
+    for r in rows:
+        R = r[:]
+        while 'X' in R:
+            R.remove('X')
+        if 2 in Counter(R).values():
+            correct = False
+    for c in cols:
+        C = c[:]
+        while 'X' in C:
+            C.remove('X')
+        if 2 in Counter(C).values():
+            correct = False
+    for sq_x in range(3):
+        for sq_y in range(3):
+            square = get_square_elements(sq_x*3, sq_y*3, rows)
+            while 'X' in square:
+                square.remove('X')
+            if 2 in Counter(square).values():
+                correct = False
+    return correct
+
+def generate_primary_field():
+    decset = [i for i in range(1,10)]
+    random.shuffle(decset)
+    pole_rows = []
+
+    for _ in range(9):
+        pst = []
+        for __ in range(9):
+            if _ <= 2:
+                value = (_ * 3 + __ + 1) % 9
+            elif 3 <= _ <= 5:
+                value = (_ * 3 + __ + 2) % 9
+            else:
+                value = (_ * 3 + __ + 3) % 9
+            if value == 0:
+                value = 9
+            pst.append(decset[value-1])
+        pole_rows.append(pst)
+
+    return pole_rows
+
+
+def generate_field():
+    pole_rows = generate_primary_field()
+    # shuffling rows
+    row_block0 = pole_rows[:3]
+    random.shuffle(row_block0)
+    row_block1 = pole_rows[3:6]
+    random.shuffle(row_block1)
+    row_block2 = pole_rows[6:]
+    random.shuffle(row_block2)
+    row_blocks = [row_block0, row_block1, row_block2]
+    random.shuffle(row_blocks)
+    # setting new rows and columns
+    new_pole_rows = []
+    new_pole_cols = []
+    for row_block in row_blocks:
+        new_pole_rows.extend(row_block)
+    pole_rows = new_pole_rows
+    pole_cols = adjust_cols_from_rows(pole_rows)
+    # shuffling columns
+    col_block0 = pole_cols[:3]
+    random.shuffle(col_block0)
+    col_block1 = pole_cols[3:6]
+    random.shuffle(col_block1)
+    col_block2 = pole_cols[6:]
+    random.shuffle(col_block2)
+    col_blocks = [col_block0, col_block1, col_block2]
+    random.shuffle(col_blocks)
+    # setting new rows and columns
+    for col_block in col_blocks:
+        new_pole_cols.extend(col_block)
+    pole_cols = new_pole_cols
+    pole_rows = adjust_rows_from_cols(pole_cols)
+
+    return pole_rows
+
+def set_difficulty(field_rows:list, difficulty:int):
+    for row in range(9):
+        indexes = [i for i in range(9)]
+        random.shuffle(indexes)
+        if difficulty == 1:
+            indexes_to_erase = indexes[:3]
+        elif difficulty == 2:
+            indexes_to_erase = indexes[:5]
+        elif difficulty == 3:
+            if row % 2 == 0:
+                indexes_to_erase = indexes[:7]
+            else:
+                indexes_to_erase = indexes[:6]
+        for i in indexes_to_erase:
+            field_rows[row][i] = '0'
+
+    return field_rows
+
+def gen_main(): # gen.main()
+    field_rows = generate_field()
+    write_to_txt(field_rows, 'sudokunotsee.txt')
+    see = set_difficulty(field_rows, 1)
+    write_to_txt(see, 'sudokusee.txt')
 
 WIDTH= 900
 HEIGHT= 700
@@ -17,7 +177,7 @@ chisla = [0]*9
 kletki = [0]*9
 ##создаются пока что обычные массивы для чисел и клеток
 
-gen.main()
+gen_main()
 notsee = open('sudokunotsee.txt')
 notsee = notsee.read()
 see = open('sudokusee.txt')
