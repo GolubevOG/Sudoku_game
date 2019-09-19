@@ -1,5 +1,11 @@
 import pgzrun
 import random
+import gen_field
+
+try:
+    gen_field.main()
+except Exception as e:
+    print(e)
 
 
 WIDTH= 700
