@@ -1,9 +1,12 @@
+#-*-coding:utf-8-*-
 import pgzrun
 import random
+import sudokupole
 
+sudokupole.maingen()
 
-WIDTH= 700
-HEIGHT= 900
+WIDTH= 900
+HEIGHT= 700
 ##ширина и длина окна
 
 sudokupole = Actor("sudokupole", center = (WIDTH/2,600/2+50))
@@ -32,9 +35,9 @@ for i in range(0,9):
     chisla[i] =[0,0]
     ## переделываем в двумерный массив
 
-    chisla[i][1] = Actor("mychislo" + str(i+1), center = (50 + 32 + i*3 + i*64, 775))
+    chisla[i][1] = Actor("mychislo" + str(i+1), center = (775, 50 + 32 + i*3 + i*64))
     ## вторая ячейка заполняется картинкой данного числа и собственное координатой
-    chisla[i][0] = Actor("white", center = (50 + 32 + i*64 + i*3, 775))
+    chisla[i][0] = Actor("white", center = (775, 50 + 32 + i*64 + i*3))
     ## первая ячейка заполняется белым цевтом, типа фон и тоже координатой
     kletki[i] = [[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0],[0,0,0]]
 
